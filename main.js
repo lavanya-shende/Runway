@@ -1,25 +1,28 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
-canvas.height = 200;
+canvas.height = 320;
 
 let width = canvas.width;
 let height = canvas.height;
 
 const overlay = document.getElementById('overlay');
 
-// Constants
-const GROUND_HEIGHT = 30;
+// Constants (Zoomed-In Sizes)
+const GROUND_HEIGHT = 40;
 const GRAVITY = 0.7;
-const JUMP_VELOCITY = -14;
-const PLAYER_WIDTH = 40;
-const PLAYER_HEIGHT = 60;
-const OBSTACLE_WIDTH = 40;
-const OBSTACLE_HEIGHT = 40;
-const COLLECTIBLE_SIZE = 30;
-const GROUND_SCROLL_SPEED = 6;
+const JUMP_VELOCITY = -25;
+const PLAYER_WIDTH = 90;
+const PLAYER_HEIGHT = 130;
+const OBSTACLE_WIDTH = 60;
+const OBSTACLE_HEIGHT = 60;
+const COLLECTIBLE_SIZE = 50;
 const SPAWN_INTERVAL = 1200;
 const COLLECTIBLE_INTERVAL = 1800;
+
+// Dynamic Speed Control
+let baseSpeed = 3;                // Initial speed
+const speedIncrement = 0.001;     // Speed increase rate per frame
 
 // Game state
 let gameState = 'start';
@@ -53,7 +56,6 @@ IMAGES.resume.src = 'assets/collectibles/books.png';
 IMAGES.referral.src = 'assets/collectibles/job.png';
 IMAGES.laptop.src = 'assets/collectibles/desk.png';
 
-// Obstacle & collectible types
 const OBSTACLE_TYPES = [
   { name: 'Phone' },
   { name: 'Party' },
@@ -65,12 +67,10 @@ const COLLECTIBLE_TYPES = [
   { name: 'Laptop' },
 ];
 
-// Utility
 function randomChoice(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// Player
 class Player {
   constructor() {
     this.width = PLAYER_WIDTH;
@@ -109,7 +109,6 @@ class Player {
   }
 }
 
-// Obstacle
 class Obstacle {
   constructor() {
     this.type = randomChoice(OBSTACLE_TYPES);
@@ -117,7 +116,7 @@ class Obstacle {
     this.height = OBSTACLE_HEIGHT;
     this.x = width + 20;
     this.y = height - GROUND_HEIGHT - this.height;
-    this.speed = GROUND_SCROLL_SPEED;
+    this.speed = baseSpeed;
     this.image = IMAGES[this.type.name.toLowerCase()];
   }
 
@@ -134,14 +133,13 @@ class Obstacle {
   }
 }
 
-// Collectible
 class Collectible {
   constructor() {
     this.type = randomChoice(COLLECTIBLE_TYPES);
     this.size = COLLECTIBLE_SIZE;
     this.x = width + 20;
-    this.y = height - GROUND_HEIGHT - this.size - 50 - Math.random() * 50;
-    this.speed = GROUND_SCROLL_SPEED;
+    this.y = height - GROUND_HEIGHT - this.size - 30 - Math.random() * 40;
+    this.speed = baseSpeed;
     this.collected = false;
     this.image = IMAGES[this.type.name.toLowerCase()];
   }
@@ -159,7 +157,6 @@ class Collectible {
   }
 }
 
-// Collision detection
 function rectsOverlap(a, b) {
   return (
     a.x < b.x + b.width &&
@@ -169,12 +166,12 @@ function rectsOverlap(a, b) {
   );
 }
 
-// Reset game
 function resetGame() {
   player = new Player();
   obstacles = [];
   collectibles = [];
   score = 0;
+  baseSpeed = 3; // Reset to initial speed
   groundOffset = 0;
   lastObstacleTime = 0;
   lastCollectibleTime = 0;
@@ -182,7 +179,6 @@ function resetGame() {
   height = canvas.height;
 }
 
-// Ground and background
 function drawBackground() {
   ctx.fillStyle = '#222';
   ctx.fillRect(0, 0, width, height);
@@ -199,24 +195,34 @@ function drawGround() {
 
 function drawScore() {
   ctx.fillStyle = '#fff';
-  ctx.font = '16px Arial';
+  ctx.font = '18px Arial';
   ctx.fillText('Score: ' + Math.floor(score), 20, 30);
 }
 
-// Game update
 function updateGame(dt) {
   player.update();
 
-  groundOffset += GROUND_SCROLL_SPEED;
+  // Gradually increase speed
+  baseSpeed += speedIncrement;
+  groundOffset += baseSpeed;
+
+  // Update obstacle and collectible speed dynamically
+  obstacles.forEach(o => o.speed = baseSpeed);
+  collectibles.forEach(c => c.speed = baseSpeed);
+
   if (groundOffset > IMAGES.ground.width) groundOffset = 0;
 
   if (Date.now() - lastObstacleTime > SPAWN_INTERVAL) {
-    obstacles.push(new Obstacle());
+    const newObstacle = new Obstacle();
+    newObstacle.speed = baseSpeed;
+    obstacles.push(newObstacle);
     lastObstacleTime = Date.now();
   }
 
   if (Date.now() - lastCollectibleTime > COLLECTIBLE_INTERVAL) {
-    collectibles.push(new Collectible());
+    const newCollectible = new Collectible();
+    newCollectible.speed = baseSpeed;
+    collectibles.push(newCollectible);
     lastCollectibleTime = Date.now();
   }
 
@@ -230,7 +236,7 @@ function updateGame(dt) {
     if (rectsOverlap(player.getRect(), o.getRect())) {
       gameState = 'gameover';
       highScore = Math.max(highScore, Math.floor(score));
-      showOverlay(`Game Over<br>Score: ${Math.floor(score)}<br><span style="font-size:1rem;">Press Space to Restart</span>`);
+      showOverlay(`Game Over<br>Score: ${Math.floor(score)}<br>`);
       return;
     }
   }
@@ -264,7 +270,7 @@ function hideOverlay() {
   overlay.style.display = 'none';
 }
 
-// Key input
+// Input
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space') {
     if (gameState === 'start') {
@@ -282,9 +288,10 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-// Resize
+// Responsive resize
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
+  canvas.height = 400;
   width = canvas.width;
   height = canvas.height;
   if (player) {
@@ -292,7 +299,7 @@ window.addEventListener('resize', () => {
   }
 });
 
-// Wait for all images to load before starting game
+// Load all images
 function loadAllImages(images, callback) {
   let loaded = 0;
   const total = Object.keys(images).length;
