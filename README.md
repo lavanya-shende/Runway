@@ -3,7 +3,7 @@
 **Runway Runner** is a fun, offline-friendly endless runner game inspired by the classic Chrome Dino game — but with a twist for students! Dodge distractions like social media and parties, and collect career-building items like resumes and certifications as you prepare for your dream job.
 
 ![screenshot](assets/screenshot1.png)
-(assets/screenshot2.png)
+![Runway Runner Screenshot](assets/screenshot2.png)
 
 ---
 
