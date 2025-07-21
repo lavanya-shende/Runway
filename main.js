@@ -298,7 +298,12 @@ function updateGame(dt) {
       }
 
       gameState = "gameover";
-      console.log("Game Over! currentScore:", currentScore, "highScore:", highScore);
+      console.log(
+        "Game Over! currentScore:",
+        currentScore,
+        "highScore:",
+        highScore
+      );
       showOverlay(
         `Game Over<br>
        Score: ${currentScore}<br>
@@ -329,7 +334,30 @@ function drawGame() {
 }
 
 function showOverlay(text) {
-  overlay.innerHTML = `<div style="color:white;text-align:center;"><h2>${text}</h2></div>`;
+  const currentScore = Math.floor(score);
+  const savedHighScore = parseInt(localStorage.getItem("highScore")) || 0;
+
+  overlay.innerHTML = `
+    <div style="
+      text-align: center;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      color: #fff;
+      padding: 20px;
+    ">
+      <div style="font-size: 36px; font-weight: bold; margin-bottom: 10px; color: #ff4d4d;">
+        Game Over
+      </div>
+      <div style="font-size: 20px; margin-bottom: 8px;">
+        Score: ${currentScore}
+      </div>
+      <div style="font-size: 20px; margin-bottom: 20px;">
+        Best: ${Math.max(currentScore, savedHighScore)}
+      </div>
+      <div style="font-size: 16px; opacity: 0.7;">
+        Press <strong>Space</strong> to Restart
+      </div>
+    </div>
+  `;
   overlay.style.display = "flex";
 }
 
