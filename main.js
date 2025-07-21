@@ -297,7 +297,7 @@ function updateGame(dt) {
         if (rectsOverlap(player.getRect(), o.getRect())) {
             gameState = 'gameover';
             highScore = Math.max(highScore, Math.floor(score));
-            showOverlay(`Game Over<br>Score: ${Math.floor(score)}<br>`);
+            showOverlay('Game Over');
             return;
         }
     }
@@ -332,17 +332,9 @@ function showOverlay(text) {
           font-size: 42px;
           margin-bottom: 10px;
           color: #ff4d4d;
-        ">Game Over</h1>
-  
+        ">${text}</h1>
         <div style="font-size: 24px; margin-bottom: 12px;">
-          Score: ${Math.floor(score)}
-        </div>
-  
-        <div style="
-          font-size: 16px;
-          color: #ccc;
-        ">
-          you wanna try fixing your internet now!?
+          ${gameState === 'gameover' ? 'Score: ' + Math.floor(score) : ''}
         </div>
       </div>
     `;
