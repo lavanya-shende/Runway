@@ -1,14 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Runway</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Runway</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#222" />
+
 </head>
+
 <body>
-  <canvas id="gameCanvas"></canvas>
-  <div id="overlay"></div>
-  <script src="main.js"></script>
+    <canvas id="gameCanvas"></canvas>
+    <div id="overlay"></div>
+    <script src="main.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('service-worker.js')
+            .then(() => console.log('Service Worker registered'))
+            .catch(err => console.error('Service Worker failed', err));
+        }
+      </script>      
 </body>
+
 </html>
