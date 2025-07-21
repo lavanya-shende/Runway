@@ -1,7 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    background: #fff; /* match player background */
+    background: #111; /* match player background */
     font-family: Arial, sans-serif;
     overflow: hidden;
     height: 100vh;

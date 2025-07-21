@@ -51,7 +51,7 @@ const IMAGES = {
   certificate: new Image(),
 };
 
-IMAGES.player.src = 'assets/student/s.jpg'; // Spritesheet (823x297)
+IMAGES.player.src = 'assets/student/s.png'; // Spritesheet (823x297)
 IMAGES.ground.src = 'assets/background/grass.png';
 
 IMAGES.phone.src = 'assets/distractions/phone.png';
@@ -227,10 +227,10 @@ function resetGame() {
 }
 
 function drawBackground() {
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, 0, width, height - GROUND_HEIGHT);
 
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = '#111';
   ctx.fillRect(0, height - GROUND_HEIGHT, width, GROUND_HEIGHT);
 }
 
@@ -244,7 +244,7 @@ function drawGround() {
 }
 
 function drawScore() {
-  ctx.fillStyle = '#111';
+  ctx.fillStyle = '#fff';
   ctx.font = '18px Arial';
   ctx.fillText('Score: ' + Math.floor(score), 20, 30);
 }
