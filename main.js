@@ -1,19 +1,19 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
-canvas.height = 320;
+canvas.height = 400;
 
 let width = canvas.width;
 let height = canvas.height;
 
 const overlay = document.getElementById('overlay');
 
-// Constants (Zoomed-In Sizes)
+// Constants
 const GROUND_HEIGHT = 40;
 const GRAVITY = 0.7;
-const JUMP_VELOCITY = -25;
-const PLAYER_WIDTH = 90;
-const PLAYER_HEIGHT = 130;
+const JUMP_VELOCITY = -22;
+const PLAYER_WIDTH = 80;
+const PLAYER_HEIGHT = 110;
 const OBSTACLE_WIDTH = 60;
 const OBSTACLE_HEIGHT = 60;
 const COLLECTIBLE_SIZE = 50;
@@ -21,10 +21,9 @@ const SPAWN_INTERVAL = 1200;
 const COLLECTIBLE_INTERVAL = 1800;
 
 // Dynamic Speed Control
-let baseSpeed = 3;                // Initial speed
-const speedIncrement = 0.001;     // Speed increase rate per frame
+let baseSpeed = 3;
+const speedIncrement = 0.001;
 
-// Game state
 let gameState = 'start';
 let score = 0;
 let highScore = 0;
@@ -35,36 +34,52 @@ let obstacles = [];
 let collectibles = [];
 let player;
 
-// Load images
 const IMAGES = {
   player: new Image(),
   ground: new Image(),
+
   phone: new Image(),
   party: new Image(),
   bed: new Image(),
+  game: new Image(),
+  sleep: new Image(),
+
   resume: new Image(),
   referral: new Image(),
   laptop: new Image(),
+  internship: new Image(),
+  certificate: new Image(),
 };
 
-IMAGES.player.src = 'assets/student/runner.png';
+IMAGES.player.src = 'assets/student/s.jpg'; // Spritesheet (823x297)
 IMAGES.ground.src = 'assets/background/grass.png';
+
 IMAGES.phone.src = 'assets/distractions/phone.png';
 IMAGES.party.src = 'assets/distractions/party.png';
 IMAGES.bed.src = 'assets/distractions/beer.png';
+IMAGES.game.src = 'assets/distractions/movies.png';
+IMAGES.sleep.src = 'assets/distractions/pizza.png';
+
 IMAGES.resume.src = 'assets/collectibles/books.png';
 IMAGES.referral.src = 'assets/collectibles/job.png';
-IMAGES.laptop.src = 'assets/collectibles/desk.png';
+IMAGES.laptop.src = 'assets/collectibles/work.png';
+IMAGES.internship.src = 'assets/collectibles/linkedin.png';
+IMAGES.certificate.src = 'assets/collectibles/programming.png';
 
 const OBSTACLE_TYPES = [
   { name: 'Phone' },
   { name: 'Party' },
   { name: 'Bed' },
+  { name: 'Game' },
+  { name: 'Sleep' },
 ];
+
 const COLLECTIBLE_TYPES = [
   { name: 'Resume' },
   { name: 'Referral' },
   { name: 'Laptop' },
+  { name: 'Internship' },
+  { name: 'Certificate' },
 ];
 
 function randomChoice(arr) {
@@ -72,42 +87,74 @@ function randomChoice(arr) {
 }
 
 class Player {
-  constructor() {
-    this.width = PLAYER_WIDTH;
-    this.height = PLAYER_HEIGHT;
-    this.x = 50;
-    this.y = height - GROUND_HEIGHT - this.height;
-    this.vy = 0;
-    this.isOnGround = true;
-  }
-
-  update() {
-    this.vy += GRAVITY;
-    this.y += this.vy;
-    if (this.y + this.height >= height - GROUND_HEIGHT) {
+    constructor() {
+      this.width = 80; // how big to draw on canvas
+      this.height = 110;
+      this.x = 100;
       this.y = height - GROUND_HEIGHT - this.height;
       this.vy = 0;
       this.isOnGround = true;
-    } else {
-      this.isOnGround = false;
+  
+      // Sprite animation (744x256 → 4 frames)
+      this.frameIndex = 0;
+      this.frameCount = 4;
+      this.frameWidth = 186;     // 744 / 4
+      this.frameHeight = 256;    // full image height
+      this.frameTimer = 0;
+      this.frameInterval = 100;
+    }
+  
+    update(dt) {
+      // Apply gravity
+      this.vy += GRAVITY;
+      this.y += this.vy;
+  
+      // Land on ground
+      if (this.y + this.height >= height - GROUND_HEIGHT) {
+        this.y = height - GROUND_HEIGHT - this.height;
+        this.vy = 0;
+        this.isOnGround = true;
+      } else {
+        this.isOnGround = false;
+      }
+  
+      // Animate only while running (on ground)
+      if (this.isOnGround) {
+        this.frameTimer += dt;
+        if (this.frameTimer >= this.frameInterval) {
+          this.frameIndex = (this.frameIndex + 1) % this.frameCount;
+          this.frameTimer = 0;
+        }
+      }
+    }
+  
+    jump() {
+      if (this.isOnGround) {
+        this.vy = JUMP_VELOCITY; // now jump works fine
+        this.isOnGround = false;
+      }
+    }
+  
+    draw() {
+      // Optional crop: trim 10px from both left and right of each frame
+    //   const cropOffset = 10;
+      const cropRight = 16;
+
+  
+      ctx.drawImage(
+        IMAGES.player,
+        Math.floor(this.frameIndex * this.frameWidth + cropRight), 0,
+        this.frameWidth - cropRight * 2, this.frameHeight,
+        this.x, this.y,
+        this.width, this.height
+      );
+    }
+  
+    getRect() {
+      return { x: this.x, y: this.y, width: this.width, height: this.height };
     }
   }
-
-  jump() {
-    if (this.isOnGround) {
-      this.vy = JUMP_VELOCITY;
-      this.isOnGround = false;
-    }
-  }
-
-  draw() {
-    ctx.drawImage(IMAGES.player, this.x, this.y, this.width, this.height);
-  }
-
-  getRect() {
-    return { x: this.x, y: this.y, width: this.width, height: this.height };
-  }
-}
+  
 
 class Obstacle {
   constructor() {
@@ -138,7 +185,7 @@ class Collectible {
     this.type = randomChoice(COLLECTIBLE_TYPES);
     this.size = COLLECTIBLE_SIZE;
     this.x = width + 20;
-    this.y = height - GROUND_HEIGHT - this.size - 30 - Math.random() * 40;
+    this.y = height - GROUND_HEIGHT - this.size - 80 - Math.random() * 60;
     this.speed = baseSpeed;
     this.collected = false;
     this.image = IMAGES[this.type.name.toLowerCase()];
@@ -171,7 +218,7 @@ function resetGame() {
   obstacles = [];
   collectibles = [];
   score = 0;
-  baseSpeed = 3; // Reset to initial speed
+  baseSpeed = 3;
   groundOffset = 0;
   lastObstacleTime = 0;
   lastCollectibleTime = 0;
@@ -180,8 +227,11 @@ function resetGame() {
 }
 
 function drawBackground() {
-  ctx.fillStyle = '#222';
-  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, width, height - GROUND_HEIGHT);
+
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, height - GROUND_HEIGHT, width, GROUND_HEIGHT);
 }
 
 function drawGround() {
@@ -194,19 +244,17 @@ function drawGround() {
 }
 
 function drawScore() {
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = '#111';
   ctx.font = '18px Arial';
   ctx.fillText('Score: ' + Math.floor(score), 20, 30);
 }
 
 function updateGame(dt) {
-  player.update();
+  player.update(dt);
 
-  // Gradually increase speed
   baseSpeed += speedIncrement;
   groundOffset += baseSpeed;
 
-  // Update obstacle and collectible speed dynamically
   obstacles.forEach(o => o.speed = baseSpeed);
   collectibles.forEach(c => c.speed = baseSpeed);
 
@@ -270,7 +318,6 @@ function hideOverlay() {
   overlay.style.display = 'none';
 }
 
-// Input
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space') {
     if (gameState === 'start') {
@@ -288,7 +335,6 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-// Responsive resize
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
   canvas.height = 400;
@@ -299,7 +345,6 @@ window.addEventListener('resize', () => {
   }
 });
 
-// Load all images
 function loadAllImages(images, callback) {
   let loaded = 0;
   const total = Object.keys(images).length;
@@ -311,7 +356,6 @@ function loadAllImages(images, callback) {
   }
 }
 
-// Game loop
 let lastFrame = performance.now();
 function gameLoop(now) {
   let dt = now - lastFrame;
@@ -323,7 +367,6 @@ function gameLoop(now) {
   requestAnimationFrame(gameLoop);
 }
 
-// Start after images load
 loadAllImages(IMAGES, () => {
   showOverlay('Press Space to Start');
   requestAnimationFrame(gameLoop);

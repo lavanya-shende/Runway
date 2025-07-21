@@ -1,33 +1,31 @@
 body {
     margin: 0;
     padding: 0;
-    background: #111;
+    background: #fff; /* match player background */
     font-family: Arial, sans-serif;
     overflow: hidden;
     height: 100vh;
-    display: flex;
-    align-items: center;  /* center vertically */
-    justify-content: center; /* optional, not needed if full width */
     position: relative;
   }
   
   #gameCanvas {
     display: block;
-    width: 100vw;       /* full width */
-    height: 200px;      /* fixed height */
-    background: #222;
-    border-bottom: 3px solid #444;
-    position: relative;
+    width: 100vw;
+    height: 400px; /* matches canvas height */
+    background: transparent; /* canvas draws its own background */
+    border: none;
+    position: absolute;
+    top: 0;
+    left: 0;
     z-index: 0;
   }
   
   #overlay {
     position: absolute;
-    top: 50%;
+    top: 0;
     left: 0;
-    transform: translateY(-50%);
     width: 100vw;
-    height: 200px;
+    height: 400px;
     display: flex;
     align-items: center;
     justify-content: center;
