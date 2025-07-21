@@ -82,6 +82,7 @@ const COLLECTIBLE_TYPES = [
   { name: 'Certificate' },
 ];
 
+  
 function randomChoice(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -309,9 +310,34 @@ function drawGame() {
 }
 
 function showOverlay(text) {
-  overlay.innerHTML = text;
-  overlay.style.display = 'flex';
-}
+    overlay.innerHTML = `
+      <div style="
+        text-align: center;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        color: white;
+      ">
+        <h1 style="
+          font-size: 42px;
+          margin-bottom: 10px;
+          color: #ff4d4d;
+        ">Game Over</h1>
+  
+        <div style="font-size: 24px; margin-bottom: 12px;">
+          Score: ${Math.floor(score)}
+        </div>
+  
+        <div style="
+          font-size: 16px;
+          color: #ccc;
+        ">
+          you wanna try fixing your internet now!?
+        </div>
+      </div>
+    `;
+    overlay.style.display = 'flex';
+  }
+  
+  
 
 function hideOverlay() {
   overlay.innerHTML = '';
