@@ -333,9 +333,12 @@ function drawGame() {
   drawScore();
 }
 
-function showOverlay(text) {
+function showOverlay(text = "") {
   const currentScore = Math.floor(score);
   const savedHighScore = parseInt(localStorage.getItem("highScore")) || 0;
+
+  const isGameOver = gameState === "gameover";
+  const isStart = gameState === "start";
 
   overlay.innerHTML = `
     <div style="
@@ -344,18 +347,36 @@ function showOverlay(text) {
       color: #fff;
       padding: 20px;
     ">
-      <div style="font-size: 36px; font-weight: bold; margin-bottom: 10px; color: #ff4d4d;">
-        Game Over
-      </div>
-      <div style="font-size: 20px; margin-bottom: 8px;">
-        Score: ${currentScore}
-      </div>
-      <div style="font-size: 20px; margin-bottom: 20px;">
-        Best: ${Math.max(currentScore, savedHighScore)}
-      </div>
-      <div style="font-size: 16px; opacity: 0.7;">
-        Press <strong>Space</strong> to Restart
-      </div>
+      ${
+        isGameOver
+          ? `
+        <div style="font-size: 36px; font-weight: bold; margin-bottom: 10px; color: #ff4d4d;">
+          Game Over
+        </div>
+        <div style="font-size: 20px; margin-bottom: 8px;">
+          Score: ${currentScore}
+        </div>
+        <div style="font-size: 20px; margin-bottom: 20px;">
+          Best: ${Math.max(currentScore, savedHighScore)}
+        </div>
+        <div style="font-size: 16px; opacity: 0.7;">
+          Press <strong>Space</strong> to Restart
+        </div>
+      `
+          : isStart
+          ? `
+        <div style="font-size: 30px; margin-bottom: 10px;">
+          Welcome to Runway Runner!
+        </div>
+        <div style="font-size: 18px; margin-bottom: 8px;">
+          Best: ${savedHighScore}
+        </div>
+        <div style="font-size: 16px; opacity: 0.7;">
+          Press <strong>Space</strong> to Start
+        </div>
+      `
+          : ""
+      }
     </div>
   `;
   overlay.style.display = "flex";
