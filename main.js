@@ -372,8 +372,9 @@ function showOverlay(text = "") {
           Best: ${savedHighScore}
         </div>
         <div style="font-size: 16px; opacity: 0.7;">
-          Press <strong>Space</strong> to Start
-        </div>
+  Tap or press <strong>Space</strong> to play
+</div>
+
       `
           : ""
       }
@@ -387,17 +388,28 @@ function hideOverlay() {
   overlay.style.display = "none";
 }
 
+function startOrJump() {
+  if (gameState === "start" || gameState === "gameover") {
+    hideOverlay();
+    resetGame();
+    gameState = "running";
+  } else if (gameState === "running") {
+    player.jump();
+  }
+}
+
+// Spacebar support for desktop
 window.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
-    if (gameState === "start" || gameState === "gameover") {
-      hideOverlay();
-      resetGame();
-      gameState = "running";
-    } else if (gameState === "running") {
-      player.jump();
-    }
+    startOrJump();
     e.preventDefault();
   }
+});
+
+// Touch support for mobile
+window.addEventListener("touchstart", (e) => {
+  startOrJump();
+  e.preventDefault();
 });
 
 window.addEventListener("resize", () => {
@@ -431,6 +443,6 @@ function gameLoop(now) {
 }
 
 loadAllImages(IMAGES, () => {
-  showOverlay(`Best: ${highScore}<br>Press Space to Start`);
+  showOverlay(`Best: ${highScore}<br>Tap or Press Space to Start`);
   requestAnimationFrame(gameLoop);
 });
