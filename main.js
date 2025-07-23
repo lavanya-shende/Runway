@@ -1,7 +1,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
-canvas.height = 400;
+canvas.height = 450;
 
 let width = canvas.width;
 let height = canvas.height;
@@ -11,7 +11,7 @@ const overlay = document.getElementById("overlay");
 // Constants
 const GROUND_HEIGHT = 40;
 const GRAVITY = 0.7;
-const JUMP_VELOCITY = -22;
+const JUMP_VELOCITY = -20;
 const PLAYER_WIDTH = 80;
 const PLAYER_HEIGHT = 110;
 const OBSTACLE_WIDTH = 60;

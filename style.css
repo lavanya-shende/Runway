@@ -11,13 +11,14 @@ body {
   #gameCanvas {
     display: block;
     width: 100vw;
-    height: 400px; /* matches canvas height */
+    height: 450px; /* matches canvas height */
     background: transparent; /* canvas draws its own background */
     border: none;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 0;
+    top: 60px;
   }
   
   #overlay {
@@ -25,7 +26,7 @@ body {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 400px;
+    height: 450px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -35,5 +36,6 @@ body {
     background: rgba(0, 0, 0, 0.4);
     z-index: 1;
     pointer-events: none;
+    top: 60px;
   }
   
